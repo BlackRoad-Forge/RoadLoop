@@ -26,6 +26,7 @@ import {
 	projectScope,
 	validCursor,
 } from '../../shared/middlewares/global.middleware';
+import { respondWithPublicApiError } from '../../shared/public-api-error-response';
 import { encodeNextCursor } from '../../shared/services/pagination.service';
 
 export = {
@@ -444,6 +445,30 @@ export = {
 			}
 
 			return res.json(tags);
+		},
+	],
+	archiveWorkflow: [
+		apiKeyHasScope('workflow:delete'),
+		projectScope('workflow:delete', 'workflow'),
+		async (req: WorkflowRequest.Get, res: express.Response): Promise<express.Response> => {
+			const { id } = req.params;
+			const workflow = await Container.get(WorkflowService).archiveForPublicApi(req.user, id);
+			if (!workflow) {
+				throw new NotFoundError('Workflow not found');
+			}
+			return res.json(workflow);
+		},
+	],
+	unarchiveWorkflow: [
+		apiKeyHasScope('workflow:delete'),
+		projectScope('workflow:delete', 'workflow'),
+		async (req: WorkflowRequest.Get, res: express.Response): Promise<express.Response> => {
+			const { id } = req.params;
+			const workflow = await Container.get(WorkflowService).unarchiveForPublicApi(req.user, id);
+			if (!workflow) {
+				throw new NotFoundError('Workflow not found');
+			}
+			return res.json(workflow);
 		},
 	],
 };
